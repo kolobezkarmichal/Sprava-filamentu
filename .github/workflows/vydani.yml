@@ -1,0 +1,48 @@
+name: Zveřejnit aktuální instalovatelný balíček
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/vydani.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  zverejnit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stáhnout zdrojové soubory
+        uses: actions/checkout@v4
+      - name: Sestavit veřejný ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip -qr Sprava_filamentu_kompletni_verejna.zip filamenty README.md INSTALACE.md CHANGELOG.md .gitignore ukazka-export-filamentu.csv
+          unzip -t Sprava_filamentu_kompletni_verejna.zip
+          if unzip -Z1 Sprava_filamentu_kompletni_verejna.zip | grep -E '(filaments\.php|settings\.php|backup-status\.php|\.htpasswd|/files/(sample_|photo_))'; then
+            echo "Chyba: balíček obsahuje soukromá data!" >&2
+            exit 1
+          fi
+      - name: Vytvořit vydání bez číselné verze
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/poznamky.md <<'EOF'
+          # Správa filamentů – aktuální veřejná sestava
+
+          Kompletní zdrojová PHP aplikace pro evidenci skladových zásob filamentů, očištěná od osobních dat.
+
+          Obsahuje přehled, správu položek, množství, historii, fotografie a HEX barvy, export CSV/PDF, volitelné ZIP zálohy a české návody.
+
+          **Po instalaci je nutné nastavit vlastní ověření přístupu k administraci** – přiložené Apache .htaccess ji ve výchozím stavu blokuje.
+          **PDF vyžaduje vlastní DejaVuSans.ttf**, který není součástí archivu.
+          Aplikace je bez doloženého čísla verze. Tag `aktualni-sestaveni` je pouze označení tohoto zveřejnění.
+          EOF
+          if gh release view aktualni-sestaveni >/dev/null 2>&1; then
+            echo "Vydání aktuálního sestavení už existuje, nic nepřepisuji."
+          else
+            gh release create aktualni-sestaveni Sprava_filamentu_kompletni_verejna.zip --title "Správa filamentů – aktuální sestavení" --notes-file /tmp/poznamky.md --target "$GITHUB_SHA" --latest
+          fi
