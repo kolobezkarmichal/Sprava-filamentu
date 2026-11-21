@@ -1,0 +1,6 @@
+# PRIKLAD: vloz misto id/.htaccess az po vytvoreni vlastniho .htpasswd.
+# Nedavej .htpasswd do verejne slozky webu; nastav absolutni cestu.
+AuthType Basic
+AuthName "Sprava filamentu – pouze vlastnik"
+AuthUserFile /ABSOLUTNI/SOUKROMA/CESTA/.htpasswd
+Require valid-user

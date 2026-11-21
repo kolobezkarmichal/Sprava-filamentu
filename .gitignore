@@ -1,0 +1,20 @@
+# Osobni databaze, historie, nastaveni, logy a zalohy
+/filamenty/id/filaments.php
+/filamenty/id/settings.php
+/filamenty/id/backup-status.php
+/filamenty/id/lock.php
+/filamenty/id/.write_*
+/filamenty/id/files/*
+!/filamenty/id/files/.gitkeep
+/filamenty/id/*.zip
+/filamenty/id/*.csv
+*.bak
+*.log
+*.tmp
+*.swp
+.env
+.env.*
+.htpasswd
+**/.htpasswd
+# Nahrana URL / konfigurace administracniho pristupu mohou byt lokalne upravene
+# Nikdy necommituj skutecna data ani soukrome zalohy.
